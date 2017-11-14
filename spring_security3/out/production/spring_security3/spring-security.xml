@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+    <!--不需要写登入界面，spring-security自带的-->
+    <!--<http>-->
+    <!--&lt;!&ndash;只有拥有USER这个角色的人才能访问main/下面的东西&ndash;&gt;-->
+    <!--<intercept-url pattern="/main/**" access="hasRole('USER')"/>-->
+    <!--&lt;!&ndash;只有拥有USER和ROLE_ADMIN这两个角色的人才能访问back/下面的东西&ndash;&gt;-->
+    <!--<intercept-url pattern="/back/**" access="hasRole('USER') and  hasRole('ROLE_ADMIN')"/>-->
+    <!--<form-login/>-->
+    <!--<logout/>-->
+    <!--</http>-->
+
+    <!--使用自定义的登入界面-->
+    <!--access="hasRole('USER')"里面的hasRole可以写USER也可以写ROLE_USER-->
+    <!--但是authorities必须写ROLE_USER，即数据库中存的值，不知道为什么。。。。-->
+    <http>
+        <!--只有拥有USER这个角色的人才能访问main/下面的东西-->
+        <intercept-url pattern="/main/**" access="hasRole('USER')"/>
+        <!--只有拥有USER和ROLE_ADMIN这两个角色的人才能访问back/下面的东西-->
+        <intercept-url pattern="/back/**" access="hasRole('ROLE_USER') and  hasRole('ROLE_ADMIN')"/>
+        <form-login login-page="/login.jsp" default-target-url="/main/main.jsp"
+                    authentication-failure-url="/login.jsp?error=1"/>
+        <logout/>
+    </http>
+
+
+    <!--把数据源配置读取进来-->
+    <beans:import resource="spring-application.xml"></beans:import>
+
+
+    <authentication-manager>
+        <authentication-provider>
+            <!--<user-service>-->
+            <!--<user name="admin" password="123" authorities="ROLE_USER, ROLE_ADMIN"/>-->
+            <!--<user name="mzd" password="123" authorities="ROLE_USER"/>-->
+            <!--</user-service>-->
+            <!--############使用数据库查询##############-->
+            <!--1.先查询有没有这个用户：users-by-username-query=""-->
+            <!--2.再查询这个用户拥有的角色是什么：authorities-by-username-query=""-->
+            <jdbc-user-service data-source-ref="dataSource"
+                               users-by-username-query="select uname username,psw password ,enabled from SECURITYUSER where uname=? "
+                               authorities-by-username-query="select uname username ,rolename role from SECURITYROLE where uname=?"></jdbc-user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+
+</beans:beans>

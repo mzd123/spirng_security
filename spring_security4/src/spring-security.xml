@@ -1,0 +1,42 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <beans:import resource="classpath:spring-application.xml"></beans:import>
+
+
+    <http>
+        <!--权限不足拒绝访问跳转的页面-->
+        <access-denied-handler error-page="/login.do?error=2"/>
+        <intercept-url pattern="/user.do" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/admin.do"
+                       access="hasRole('ROLE_USER') and  hasRole('ROLE_ADMIN') and  hasRole('ROLE_VIP')"/>
+        <intercept-url pattern="/vip.do" access="hasRole('ROLE_USER') and hahRole('ROLE_VIP')"/>
+        <!--login-page：登入界面，因为配在WEB-INF下面，所以要去controller层跳转一下-->
+        <!--default-target-url：登入成功之后的默认页面，权限最低的人都能看到的-->
+        <!--authentication-failure-url：账号或密码错误时候-->
+        <form-login login-page="/login.do" default-target-url="/user.do"
+                    authentication-failure-url="/login.do?error=1"/>
+        <logout />
+        <!--缺点就是只能返回一种错误情况，数据库异常、用户名密码为空这些情况没法提示，他都会提示账号密码错误-->
+        <logout logout-url="/logout" logout-success-url="/loginPage" invalidate-session="true"/>
+
+    </http>
+
+    <authentication-manager>
+        <authentication-provider>
+            <jdbc-user-service data-source-ref="dataSource"
+                               users-by-username-query="select uname username,psw password ,enabled from SECURITYUSER where uname=? "
+                               authorities-by-username-query="select uname username ,rolename role from SECURITYROLE where uname=?"></jdbc-user-service>
+            <!--使登入的密码进行md5加密后再和数据库进行比较-->
+            <!--<password-encoder hash="md5">-->
+            <!--</password-encoder>-->
+        </authentication-provider>
+    </authentication-manager>
+
+
+</beans:beans>

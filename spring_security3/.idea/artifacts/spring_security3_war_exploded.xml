@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="spring_security3:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/spring_security3_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="spring_security3/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="spring_security3" />
+        </element>
+        <element id="directory" name="lib" />
+      </element>
+    </root>
+  </artifact>
+</component>
